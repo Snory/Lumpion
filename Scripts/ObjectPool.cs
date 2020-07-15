@@ -20,12 +20,11 @@ public class ObjectPool : MonoBehaviour
     {
         for (int i = 0; i < _poolDepth; i++)
         {
-
             _pool.Add(CreateObjectForPool());
         }
     }
 
-    public GameObject GetAvaiableObject()
+    public GameObject GetAvailableObject()
     {
         for (int i = 0; i < _pool.Count; i++)
         {
@@ -47,7 +46,7 @@ public class ObjectPool : MonoBehaviour
     {
         GameObject pooledObject = Instantiate(_prefabObject);
         pooledObject.SetActive(false);
-
+        pooledObject.transform.parent = this.transform;
         return pooledObject;
     }
 
