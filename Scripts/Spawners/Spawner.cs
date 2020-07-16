@@ -9,17 +9,53 @@ public abstract class Spawner : MonoBehaviour
     ObjectPool _objectPool;
 
     [SerializeField]
-    float _spawningTime;
+    protected float _spawningRate;
+
+    [SerializeField]
+    protected bool _spawnFromStart;
 
 
-    protected virtual GameObject Spawn(Vector3 position, Quaternion rotation)
+
+    public virtual void Start()
     {
-        return Instantiate(_objectPool.GetAvailableObject(), position, rotation);
+        if (_spawnFromStart)
+        {
+            StartCoroutine(SpawningRoutine());
+        }
     }
 
-    public virtual GameObject Spawn(Vector3 position, Quaternion rotation, Transform parent)
+
+
+    protected GameObject Spawn(Vector3 position, Quaternion rotation)
     {
-        return Instantiate(_objectPool.GetAvailableObject(), position, rotation, parent);  
+
+        GameObject availableObject = _objectPool.GetAvailableObject();
+
+        if(availableObject == null)
+        {
+            return null;
+        }
+
+        availableObject.transform.position = position;
+        availableObject.transform.rotation = rotation;
+        return availableObject;
+
+    }
+
+    protected GameObject Spawn(Vector3 position, Quaternion rotation, Transform parent)
+    {
+        GameObject availableObject = _objectPool.GetAvailableObject();
+
+        if (availableObject == null)
+        {
+            return null;
+        }
+
+
+        availableObject.transform.parent = parent;
+        availableObject.transform.position = position;
+        availableObject.transform.rotation = rotation;
+        return availableObject;
     }
 
     public abstract IEnumerator SpawningRoutine();
