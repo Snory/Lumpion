@@ -306,7 +306,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2115470384}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9.915409, y: -1.8304547, z: -0.76953125}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -325,10 +325,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _objectPool: {fileID: 412537815}
-  _spawningRate: 10
+  _spawningRate: 60
   _spawnFromStart: 1
-  CenterOfSpawning: {fileID: 1409233560}
-  MaxSpawnDistanceFromCenter: 20
-  MinSpawnDistanceFromCenter: 50
-  BurstCount: 1
-  BurstSize: 10
+  Radius: 2
+  SampleSizeRegion: {x: 20, y: 20}
+  _numSamplesBeforeRejection: 10
