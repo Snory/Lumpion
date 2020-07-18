@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -14,33 +15,69 @@ public class PoisonSampledSpawner : Spawner
     [SerializeField]
     private int _numSamplesBeforeRejection = 30;
 
+    private List<GameObject> _private;
+
+    public void Awake()
+    {
+        _private = new List<GameObject>();
+    }
+
+    public void Update()
+    {
+
+    }
+
 
     public override IEnumerator SpawningRoutine()
     {
 
+        foreach (var spawn in _private.Where(s => s.activeInHierarchy))
+        {
+            spawn.SetActive(false);
+        }
+
+        _private.Clear();
+        _private = GetPoissonSamples();
+
+
+        yield return new WaitForSeconds(_spawningRate);
+        StartCoroutine(SpawningRoutine());
+    }
+
+    private List<GameObject> GetPoissonSamples()
+    {
+        List <GameObject> spawnedSamples = new List<GameObject>();
+
         float cellSize = Radius / Mathf.Sqrt(2);
+
+
         int[,] grid = new int[Mathf.CeilToInt(SampleSizeRegion.x / cellSize), Mathf.CeilToInt(SampleSizeRegion.y / cellSize)];
         List<Vector2> points = new List<Vector2>();
         List<Vector2> spawnPoints = new List<Vector2>();
 
         spawnPoints.Add(SampleSizeRegion / 2);
-        while(spawnPoints.Count > 0)
+
+
+        while (spawnPoints.Count > 0)
         {
-            int spawnIndex = Random.Range(0,spawnPoints.Count);
+            int spawnIndex = Random.Range(0, spawnPoints.Count);
             Vector2 spawnCenter = spawnPoints[spawnIndex];
             bool candidateAccepted = false;
 
             for (int i = 0; i < _numSamplesBeforeRejection; i++)
             {
                 float angle = Random.value * Mathf.PI * 2;
+          
                 Vector2 dir = new Vector2(Mathf.Sin(angle), Mathf.Cos(angle));
                 Vector2 candidate = spawnCenter + dir * Random.Range(Radius, 2 * Radius);
 
                 if (IsValid(candidate, cellSize, points, grid))
                 {
-                    GameObject spawnedObject = Spawn(candidate, Quaternion.identity);
+                    GameObject spawnedObject = Spawn(new Vector2(candidate.x - SampleSizeRegion.x/2, candidate.y - SampleSizeRegion.y / 2), Quaternion.identity);
+                    spawnedSamples.Add(spawnedObject);
                     spawnedObject.SetActive(true);
                     spawnedObject.transform.parent = this.transform;
+
 
                     points.Add(candidate);
                     spawnPoints.Add(candidate);
@@ -59,43 +96,42 @@ public class PoisonSampledSpawner : Spawner
 
         }
 
-
-        yield return new WaitForSeconds(_spawningRate);
-        StartCoroutine(SpawningRoutine());      
+        return spawnedSamples;
     }
 
     private bool IsValid(Vector2 candidate, float cellSize, List<Vector2> points, int [,] grid)
     {
 
-        if (candidate.x >= 0 && candidate.x < SampleSizeRegion.x && candidate.y >= 0 && candidate.y < SampleSizeRegion.y)
+        if (candidate.x <= 0 || candidate.x > SampleSizeRegion.x || candidate.y <= 0 || candidate.y > SampleSizeRegion.y)
         {
-            int cellX = (int)(candidate.x / cellSize);
-            int cellY = (int)(candidate.y / cellSize);
-            int searchStartX = Mathf.Max(0, cellX - 2);
-            int searchEndX = Mathf.Min(cellX + 2, grid.GetLength(0) - 1);
-            int searchStartY = Mathf.Max(0, cellY - 2);
-            int searchEndY = Mathf.Min(cellY + 2, grid.GetLength(1) - 1);
+            return false;
+        }
 
-            for (int x = searchStartX; x < searchEndX; x++)
+        int cellX = (int)(candidate.x / cellSize);
+        int cellY = (int)(candidate.y / cellSize);
+        int searchStartX = Mathf.Max(0, cellX - 2);
+        int searchEndX = Mathf.Min(cellX + 2, grid.GetLength(0) - 1);
+        int searchStartY = Mathf.Max(0, cellY - 2);
+        int searchEndY = Mathf.Min(cellY + 2, grid.GetLength(1) - 1);
+
+        for (int x = searchStartX; x <= searchEndX; x++)
+        {
+            for(int y = searchStartY; y <= searchEndY; y++)
             {
-                for(int y = searchStartY; y < searchEndY; y++)
-                {
 
-                    int pointIndex = grid[x, y] - 1;
-                    if(pointIndex != -1)
+                int pointIndex = grid[x, y] - 1;
+                if(pointIndex != -1)
+                {
+                    float sqrDistance = (candidate - points[pointIndex]).sqrMagnitude;
+                    if(sqrDistance < Radius * Radius)
                     {
-                        float sqrDistance = (candidate - points[pointIndex]).sqrMagnitude;
-                        if(sqrDistance < Radius * Radius)
-                        {
-                            return false;
-                        }
+                        return false;
                     }
                 }
             }
-
-            return true;
-
         }
-        return false;
+
+        return true;
+
     }
 }

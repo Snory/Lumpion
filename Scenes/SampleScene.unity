@@ -321,12 +321,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 2115470384}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 31feeed5e281b434ba996af764b913e1, type: 3}
+  m_Script: {fileID: 11500000, guid: f18751dd915a34942904ab1637669213, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _objectPool: {fileID: 412537815}
-  _spawningRate: 60
+  _spawningRate: 1
   _spawnFromStart: 1
-  Radius: 2
+  Radius: 3
   SampleSizeRegion: {x: 20, y: 20}
-  _numSamplesBeforeRejection: 10
+  _numSamplesBeforeRejection: 15
