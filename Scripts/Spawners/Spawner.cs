@@ -2,29 +2,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
 public abstract class Spawner : MonoBehaviour
 {
 
     [SerializeField]
-    ObjectPool _objectPool;
-
-    [SerializeField]
-    protected float _spawningRate;
-
-    [SerializeField]
-    protected bool _spawnFromStart;
-
+    private Pool _objectPool;
+   protected SpawnerData _spawnerdata;
 
 
     public virtual void Start()
     {
-        if (_spawnFromStart)
+        if (_spawnerdata.SpawnFromStart)
         {
             StartCoroutine(SpawningRoutine());
         }
     }
 
-
+    protected void SetSpawnerData(SpawnerData data)
+    {
+        _spawnerdata = data;
+    }
 
     protected GameObject Spawn(Vector3 position, Quaternion rotation)
     {

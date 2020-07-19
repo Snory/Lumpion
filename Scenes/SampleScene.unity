@@ -150,10 +150,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7998b25663b71154485f70716757de71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _prefabObject: {fileID: 5373991296677539793, guid: 8494379cdeba8ef48ae365f3dfe29231,
+  _prefabObject: {fileID: 8718413489670851895, guid: 67b4870a3f5f0e147841546feaf8c91b,
     type: 3}
-  _poolDepth: 10
-  _canGrow: 1
+  _poolDepth: 20
+  _canGrow: 0
 --- !u!4 &412537816
 Transform:
   m_ObjectHideFlags: 0
@@ -292,7 +292,7 @@ GameObject:
   - component: {fileID: 2115470385}
   - component: {fileID: 2115470386}
   m_Layer: 0
-  m_Name: RandomSpawner
+  m_Name: WindZoneSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -325,8 +325,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _objectPool: {fileID: 412537815}
-  _spawningRate: 1
-  _spawnFromStart: 1
-  Radius: 3
-  SampleSizeRegion: {x: 20, y: 20}
-  _numSamplesBeforeRejection: 15
+  _spawnerData: {fileID: 11400000, guid: ea9e5ae68b302ef468c75b47cc1b1204, type: 2}

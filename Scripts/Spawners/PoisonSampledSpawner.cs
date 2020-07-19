@@ -7,102 +7,91 @@ using Random = UnityEngine.Random;
 
 public class PoisonSampledSpawner : Spawner
 {
-
-    [Header("Poisson sampling setting")]
-    public float Radius;
-    public Vector2 SampleSizeRegion;
+    private List<GameObject> _spawnedObjects;
 
     [SerializeField]
-    private int _numSamplesBeforeRejection = 30;
-
-    private List<GameObject> _private;
+    protected PoissonSpawnerData _spawnerData;
 
     public void Awake()
     {
-        _private = new List<GameObject>();
-    }
-
-    public void Update()
-    {
-
+        base.SetSpawnerData(_spawnerData);
+        _spawnedObjects = new List<GameObject>();
     }
 
 
     public override IEnumerator SpawningRoutine()
     {
-
-        foreach (var spawn in _private.Where(s => s.activeInHierarchy))
+          
+        foreach (var spawn in _spawnedObjects.Where(s => s.activeInHierarchy))
         {
-            spawn.SetActive(false);
+            spawn.SetActive(false); 
         }
 
-        _private.Clear();
-        _private = GetPoissonSamples();
-
-
-        yield return new WaitForSeconds(_spawningRate);
+        _spawnedObjects = GetPoissonSamples();  
+        yield return new WaitForSeconds(_spawnerData.SpawnRate);
         StartCoroutine(SpawningRoutine());
     }
 
+ 
     private List<GameObject> GetPoissonSamples()
     {
-        List <GameObject> spawnedSamples = new List<GameObject>();
+        List<GameObject> spawnedSamples = new List<GameObject>();
 
-        float cellSize = Radius / Mathf.Sqrt(2);
-
-
-        int[,] grid = new int[Mathf.CeilToInt(SampleSizeRegion.x / cellSize), Mathf.CeilToInt(SampleSizeRegion.y / cellSize)];
-        List<Vector2> points = new List<Vector2>();
-        List<Vector2> spawnPoints = new List<Vector2>();
-
-        spawnPoints.Add(SampleSizeRegion / 2);
+        float cellSize = _spawnerData.MinDistance / Mathf.Sqrt(2);
 
 
-        while (spawnPoints.Count > 0)
+        int[,] grid = new int[Mathf.CeilToInt(_spawnerData.RegionSize.x / cellSize), Mathf.CeilToInt(_spawnerData.RegionSize.y / cellSize)];
+        List<Vector2> adequateSamples = new List<Vector2>();
+        Queue<Vector2> activeSamples = new Queue<Vector2>();
+
+        activeSamples.Enqueue(_spawnerData.RegionSize / 2);
+
+
+        while (activeSamples.Count > 0)
         {
-            int spawnIndex = Random.Range(0, spawnPoints.Count);
-            Vector2 spawnCenter = spawnPoints[spawnIndex];
-            bool candidateAccepted = false;
+            Vector2 spawnCenter = activeSamples.Dequeue();
 
-            for (int i = 0; i < _numSamplesBeforeRejection; i++)
+            for (int i = 0; i < _spawnerData.NumSamplesBeforeRejection; i++)
             {
                 float angle = Random.value * Mathf.PI * 2;
-          
-                Vector2 dir = new Vector2(Mathf.Sin(angle), Mathf.Cos(angle));
-                Vector2 candidate = spawnCenter + dir * Random.Range(Radius, 2 * Radius);
 
-                if (IsValid(candidate, cellSize, points, grid))
+                Vector2 dir = new Vector2(Mathf.Sin(angle), Mathf.Cos(angle));
+                float distance = Random.Range(_spawnerData.MinDistance, _spawnerData.MinDistance * 2);
+                Vector2 candidate = spawnCenter + dir * distance;
+
+                if (IsValid(candidate, cellSize, adequateSamples, grid))
                 {
-                    GameObject spawnedObject = Spawn(new Vector2(candidate.x - SampleSizeRegion.x/2, candidate.y - SampleSizeRegion.y / 2), Quaternion.identity);
+
+                    GameObject spawnedObject = Spawn(new Vector2(candidate.x - _spawnerData.RegionSize.x / 2, candidate.y - _spawnerData.RegionSize.y / 2), Quaternion.identity);
+
+                    if(spawnedObject == null)
+                    {
+                        break;
+                    }
+
                     spawnedSamples.Add(spawnedObject);
                     spawnedObject.SetActive(true);
                     spawnedObject.transform.parent = this.transform;
+                    adequateSamples.Add(candidate);                                     
 
-
-                    points.Add(candidate);
-                    spawnPoints.Add(candidate);
-                    grid[(int)(candidate.x / cellSize), (int)(candidate.y / cellSize)] = points.Count;
-                    candidateAccepted = true;
+                    activeSamples.Enqueue(candidate);
+                    activeSamples.Enqueue(spawnCenter);
+                    
+                    
+                    grid[(int)(candidate.x / cellSize), (int)(candidate.y / cellSize)] = adequateSamples.Count;
                     break;
 
                 }
-
             }
-
-            if (!candidateAccepted)
-            {
-                spawnPoints.RemoveAt(spawnIndex);
-            }
-
         }
 
         return spawnedSamples;
     }
 
-    private bool IsValid(Vector2 candidate, float cellSize, List<Vector2> points, int [,] grid)
+    private bool IsValid(Vector2 candidate, float cellSize, List<Vector2> points, int[,] grid)
     {
 
-        if (candidate.x <= 0 || candidate.x > SampleSizeRegion.x || candidate.y <= 0 || candidate.y > SampleSizeRegion.y)
+        if (candidate.x <= 0 || candidate.x > _spawnerData.RegionSize.x || candidate.y <= 0 || candidate.y > _spawnerData.RegionSize.y)
         {
             return false;
         }
@@ -116,14 +105,14 @@ public class PoisonSampledSpawner : Spawner
 
         for (int x = searchStartX; x <= searchEndX; x++)
         {
-            for(int y = searchStartY; y <= searchEndY; y++)
+            for (int y = searchStartY; y <= searchEndY; y++)
             {
 
                 int pointIndex = grid[x, y] - 1;
-                if(pointIndex != -1)
+                if (pointIndex != -1)
                 {
                     float sqrDistance = (candidate - points[pointIndex]).sqrMagnitude;
-                    if(sqrDistance < Radius * Radius)
+                    if (sqrDistance < _spawnerData.MinDistance * _spawnerData.MinDistance)
                     {
                         return false;
                     }
