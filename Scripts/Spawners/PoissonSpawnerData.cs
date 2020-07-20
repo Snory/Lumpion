@@ -8,6 +8,7 @@ public class PoissonSpawnerData : SpawnerData
 
     [Header("Setting")]
     public float MinDistance;
+    public bool UseItemSizeAsDistance;
     public Vector2 RegionSize;
     public int NumSamplesBeforeRejection;
 

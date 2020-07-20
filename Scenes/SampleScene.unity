@@ -153,7 +153,7 @@ MonoBehaviour:
   _prefabObject: {fileID: 8718413489670851895, guid: 67b4870a3f5f0e147841546feaf8c91b,
     type: 3}
   _poolDepth: 20
-  _canGrow: 0
+  _canGrow: 1
 --- !u!4 &412537816
 Transform:
   m_ObjectHideFlags: 0

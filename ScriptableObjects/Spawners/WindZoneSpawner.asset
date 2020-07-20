@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c53e31b15ab26344b06a5978d726f51, type: 3}
   m_Name: WindZoneSpawner
   m_EditorClassIdentifier: 
-  SpawnRate: 2
+  SpawnRate: 1
   SpawnFromStart: 1
   MinDistance: 2
   RegionSize: {x: 20, y: 20}

@@ -37,7 +37,9 @@ public class PoisonSampledSpawner : Spawner
     {
         List<GameObject> spawnedSamples = new List<GameObject>();
 
-        float cellSize = _spawnerData.MinDistance / Mathf.Sqrt(2);
+        float minDistance = _spawnerData.MinDistance;
+
+        float cellSize = minDistance / Mathf.Sqrt(2);
 
 
         int[,] grid = new int[Mathf.CeilToInt(_spawnerData.RegionSize.x / cellSize), Mathf.CeilToInt(_spawnerData.RegionSize.y / cellSize)];
@@ -45,7 +47,6 @@ public class PoisonSampledSpawner : Spawner
         Queue<Vector2> activeSamples = new Queue<Vector2>();
 
         activeSamples.Enqueue(_spawnerData.RegionSize / 2);
-
 
         while (activeSamples.Count > 0)
         {
@@ -56,7 +57,7 @@ public class PoisonSampledSpawner : Spawner
                 float angle = Random.value * Mathf.PI * 2;
 
                 Vector2 dir = new Vector2(Mathf.Sin(angle), Mathf.Cos(angle));
-                float distance = Random.Range(_spawnerData.MinDistance, _spawnerData.MinDistance * 2);
+                float distance = Random.Range(minDistance, minDistance * 2);
                 Vector2 candidate = spawnCenter + dir * distance;
 
                 if (IsValid(candidate, cellSize, adequateSamples, grid))
