@@ -7,8 +7,6 @@ using Random = UnityEngine.Random;
 
 public class PoisonSampledSpawner : Spawner
 {
-    private List<GameObject> _spawnedObjects;
-
     [SerializeField]
     protected PoissonSpawnerData _spawnerData;
 
@@ -63,7 +61,7 @@ public class PoisonSampledSpawner : Spawner
                 if (IsValid(candidate, cellSize, adequateSamples, grid))
                 {
 
-                    GameObject spawnedObject = Spawn(new Vector2(candidate.x - _spawnerData.RegionSize.x / 2, candidate.y - _spawnerData.RegionSize.y / 2), Quaternion.identity);
+                    GameObject spawnedObject = Spawn(new Vector2(candidate.x - _spawnerData.RegionSize.x / 2 + this.transform.position.x, candidate.y - _spawnerData.RegionSize.y / 2 + this.transform.position.y), Quaternion.identity);
 
                     if(spawnedObject == null)
                     {
@@ -76,12 +74,10 @@ public class PoisonSampledSpawner : Spawner
                     adequateSamples.Add(candidate);                                     
 
                     activeSamples.Enqueue(candidate);
-                    activeSamples.Enqueue(spawnCenter);
-                    
+                    activeSamples.Enqueue(spawnCenter);                    
                     
                     grid[(int)(candidate.x / cellSize), (int)(candidate.y / cellSize)] = adequateSamples.Count;
                     break;
-
                 }
             }
         }

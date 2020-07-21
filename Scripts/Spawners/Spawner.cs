@@ -9,10 +9,13 @@ public abstract class Spawner : MonoBehaviour
 
     [SerializeField]
     private Pool _objectPool;
-   protected SpawnerData _spawnerdata;
 
 
-    public virtual void Start()
+    protected List<GameObject> _spawnedObjects;
+
+    protected SpawnerData _spawnerdata;
+
+    protected virtual void Start()
     {
         if (_spawnerdata.SpawnFromStart)
         {
@@ -56,6 +59,8 @@ public abstract class Spawner : MonoBehaviour
         availableObject.transform.rotation = rotation;
         return availableObject;
     }
+
+
 
     public abstract IEnumerator SpawningRoutine();
     
